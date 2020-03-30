@@ -19,7 +19,6 @@
 #define QGSPROJECTSERVERVALIDATOR_H
 
 #include "qgis_core.h"
-#include "qgslayermetadatavalidator.h"
 #include "qgslayertreegroup.h"
 #include "qgslayertree.h"
 
@@ -30,7 +29,7 @@
  * \brief Project server validator.
  * \since QGIS 3.14
  */
-class CORE_EXPORT QgsProjectServerValidator : public QgsAbstractBaseValidator
+class CORE_EXPORT QgsProjectServerValidator
 {
 
   public:
@@ -40,6 +39,38 @@ class CORE_EXPORT QgsProjectServerValidator : public QgsAbstractBaseValidator
      */
     QgsProjectServerValidator() = default;
 
+    enum ValidationError
+    {
+      DuplicatedNames = 0, //!< Error related to a duplicated layer name in the layer tree.
+      ShortNames = 1, //!< Layer short name is well formated.
+      Encoding = 2  //!< Encoding is not set correctly.
+    };
+
+    static QString displayValidationError( QgsProjectServerValidator::ValidationError error );
+
+    /**
+     * Contains the parameters describing a project validation failure.
+     */
+    struct ValidationResult
+    {
+
+      /**
+       * Constructor for ValidationResult.
+       */
+      ValidationResult( const QgsProjectServerValidator::ValidationError error, const QVariant &identifier )
+        : error( error )
+        , identifier( identifier )
+      {}
+
+      //! Error which occured during the validation process.
+      QgsProjectServerValidator::ValidationError error;
+
+      /**
+       * Identifier related to the error.
+       */
+      QVariant identifier;
+    };
+
     /**
      * Validates a layer tree to avoid some problems on QGIS Server, and returns TRUE if it's considered valid.
      * If validation fails, the \a results list will be filled with a list of
@@ -47,9 +78,8 @@ class CORE_EXPORT QgsProjectServerValidator : public QgsAbstractBaseValidator
      * \param layerTree input layer tree
      * \param results results of the validation
      * \returns bool
-     * \since QGIS 3.14
      */
-    bool validate( QgsLayerTree *layerTree, QList< QgsAbstractBaseValidator::ValidationResult > &results SIP_OUT ) const;
+    bool validate( QgsLayerTree *layerTree, QList< QgsProjectServerValidator::ValidationResult > &results SIP_OUT ) const;
 
   private:
     static void browseLayerTree( QgsLayerTreeGroup *treeGroup, QStringList &owsNames, QStringList &encodingMessages );
