@@ -19,6 +19,8 @@
 #ifndef QGSVECTORLAYERPROPERTIES
 #define QGSVECTORLAYERPROPERTIES
 
+#include <QStandardItemModel>
+
 #include "qgsoptionsdialogbase.h"
 #include "ui_qgsvectorlayerpropertiesbase.h"
 #include "qgsguiutils.h"
@@ -159,6 +161,10 @@ class GUI_EXPORT QgsVectorLayerProperties : public QgsOptionsDialogBase, private
 
     void urlClicked( const QUrl &url );
 
+    void addMetadataUrl();
+
+    void removeSelectedMetadataUrl();
+
   private:
 
     enum PropertyType
@@ -178,6 +184,8 @@ class GUI_EXPORT QgsVectorLayerProperties : public QgsOptionsDialogBase, private
     bool mMetadataFilled = false;
 
     QString mOriginalSubsetSQL;
+
+    QStandardItemModel *mMetadataUrlModel = nullptr;
 
     QPushButton *mBtnStyle = nullptr;
     QPushButton *mBtnMetadata = nullptr;
@@ -255,5 +263,40 @@ class GUI_EXPORT QgsVectorLayerProperties : public QgsOptionsDialogBase, private
     friend class QgsAppScreenShots;
 };
 
+
+#ifndef SIP_RUN
+
+///@cond PRIVATE
+
+/**
+ * \ingroup gui
+ * \class MetadataUrlItemDelegate
+ * \brief Special delegate for the metadata url view.
+ * \todo MOVE in another class for raster
+ * \since QGIS 3.20
+ */
+class MetadataUrlItemDelegate : public QStyledItemDelegate
+{
+
+    Q_OBJECT
+
+  public:
+
+    /**
+     * \brief MetadataUrlItemDelegate constructor
+     * \param parent
+     */
+    explicit MetadataUrlItemDelegate( QObject *parent = nullptr );
+
+    /**
+     * Create a special editor with a QCombobox in the link view.
+     */
+    QWidget *createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const override;
+};
+
+
+///@endcond
+
+#endif
 
 #endif

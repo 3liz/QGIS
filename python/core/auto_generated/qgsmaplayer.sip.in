@@ -364,10 +364,13 @@ Attribution indicates the provider of a layer or collection of layers.
 Sets the metadata URL of the layer
 used by QGIS Server in GetCapabilities request.
 MetadataUrl is a a link to the detailed, standardized metadata about the data.
+Since QGIS 3.22, it will edit the first metadata URL link. You should use the other method.
 
 :return: the layer metadata URL
 
 .. seealso:: :py:func:`metadataUrl`
+
+.. deprecated:: QGIS 3.22
 %End
 
     QString metadataUrl() const;
@@ -375,10 +378,13 @@ MetadataUrl is a a link to the detailed, standardized metadata about the data.
 Returns the metadata URL of the layer
 used by QGIS Server in GetCapabilities request.
 MetadataUrl is a a link to the detailed, standardized metadata about the data.
+Since QGIS 3.22, it will return the first metadata URL link. You should use the other method.
 
 :return: the layer metadata URL
 
 .. seealso:: :py:func:`setMetadataUrl`
+
+.. deprecated:: QGIS 3.22
 %End
 
     void setMetadataUrlType( const QString &metaUrlType );
@@ -390,6 +396,8 @@ MetadataUrlType indicates the standard to which the metadata complies.
 :return: the layer metadata type
 
 .. seealso:: :py:func:`metadataUrlType`
+
+.. deprecated:: QGIS 3.22
 %End
 
     QString metadataUrlType() const;
@@ -401,6 +409,8 @@ MetadataUrlType indicates the standard to which the metadata complies.
 :return: the layer metadata type
 
 .. seealso:: :py:func:`setMetadataUrlType`
+
+.. deprecated:: QGIS 3.22
 %End
 
     void setMetadataUrlFormat( const QString &metaUrlFormat );
@@ -412,6 +422,8 @@ MetadataUrlType indicates how the metadata is structured.
 :return: the layer metadata format
 
 .. seealso:: :py:func:`metadataUrlFormat`
+
+.. deprecated:: QGIS 3.22
 %End
 
     QString metadataUrlFormat() const;
@@ -423,6 +435,8 @@ MetadataUrlType indicates how the metadata is structured.
 :return: the layer metadata format
 
 .. seealso:: :py:func:`setMetadataUrlFormat`
+
+.. deprecated:: QGIS 3.22
 %End
 
     void setBlendMode( QPainter::CompositionMode blendMode );

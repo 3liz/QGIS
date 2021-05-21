@@ -121,6 +121,8 @@ QgsVectorLayerProperties::QgsVectorLayerProperties(
   connect( mWmsDimensionsTreeWidget, &QTreeWidget::itemDoubleClicked, this, &QgsVectorLayerProperties::mWmsDimensionsTreeWidget_itemDoubleClicked );
   connect( mButtonRemoveWmsDimension, &QPushButton::clicked, this, &QgsVectorLayerProperties::mButtonRemoveWmsDimension_clicked );
   connect( mSimplifyDrawingGroupBox, &QGroupBox::toggled, this, &QgsVectorLayerProperties::mSimplifyDrawingGroupBox_toggled );
+  connect( buttonRemoveMetadataUrl, &QPushButton::clicked, this, &QgsVectorLayerProperties::removeSelectedMetadataUrl );
+  connect( buttonAddMetadataUrl, &QPushButton::clicked, this, &QgsVectorLayerProperties::addMetadataUrl );
   connect( buttonBox, &QDialogButtonBox::helpRequested, this, &QgsVectorLayerProperties::showHelp );
 
   // QgsOptionsDialogBase handles saving/restoring of geometry, splitter and current tab states,
@@ -340,17 +342,40 @@ QgsVectorLayerProperties::QgsVectorLayerProperties(
   //layer attribution and metadataUrl
   mLayerAttributionLineEdit->setText( mLayer->attribution() );
   mLayerAttributionUrlLineEdit->setText( mLayer->attributionUrl() );
-  mLayerMetadataUrlLineEdit->setText( mLayer->metadataUrl() );
-  mLayerMetadataUrlTypeComboBox->setCurrentIndex(
-    mLayerMetadataUrlTypeComboBox->findText(
-      mLayer->metadataUrlType()
-    )
-  );
-  mLayerMetadataUrlFormatComboBox->setCurrentIndex(
-    mLayerMetadataUrlFormatComboBox->findText(
-      mLayer->metadataUrlFormat()
-    )
-  );
+
+  // Setup the MetadataUrl view
+  tableViewMetadataUrl->setSelectionMode( QAbstractItemView::SingleSelection );
+  tableViewMetadataUrl->setSelectionBehavior( QAbstractItemView::SelectRows );
+  tableViewMetadataUrl->horizontalHeader()->setStretchLastSection( true );
+
+  mMetadataUrlModel = new QStandardItemModel( tableViewMetadataUrl );
+  mMetadataUrlModel->setColumnCount( 3 );
+  QStringList metadataUrlHeaders;
+  metadataUrlHeaders << tr( "URL" ) << tr( "Type" ) << tr( "Format" );
+  mMetadataUrlModel->setHorizontalHeaderLabels( metadataUrlHeaders );
+  tableViewMetadataUrl->setModel( mMetadataUrlModel );
+  tableViewMetadataUrl->setItemDelegate( new MetadataUrlItemDelegate( this ) );
+
+//  mConstraintsModel->clear();
+//  const QList<QgsLayerMetadata::Constraint> &constraints = layerMetadata->constraints();
+//  for ( const QgsLayerMetadata::Constraint &constraint : constraints )
+//  {
+//    int row = mConstraintsModel->rowCount();
+//    mConstraintsModel->setItem( row, 0, new QStandardItem( constraint.type ) );
+//    mConstraintsModel->setItem( row, 1, new QStandardItem( constraint.constraint ) );
+//  }
+
+//  mLayerMetadataUrlLineEdit->setText( mLayer->metadataUrl() );
+//  mLayerMetadataUrlTypeComboBox->setCurrentIndex(
+//    mLayerMetadataUrlTypeComboBox->findText(
+//      mLayer->metadataUrlType()
+//    )
+//  );
+//  mLayerMetadataUrlFormatComboBox->setCurrentIndex(
+//    mLayerMetadataUrlFormatComboBox->findText(
+//      mLayer->metadataUrlFormat()
+//    )
+//  );
   mLayerLegendUrlLineEdit->setText( mLayer->legendUrl() );
   mLayerLegendUrlFormatComboBox->setCurrentIndex(
     mLayerLegendUrlFormatComboBox->findText(
@@ -777,17 +802,17 @@ void QgsVectorLayerProperties::apply()
     mMetadataFilled = false;
   mLayer->setAttributionUrl( mLayerAttributionUrlLineEdit->text() );
 
-  if ( mLayer->metadataUrl() != mLayerMetadataUrlLineEdit->text() )
-    mMetadataFilled = false;
-  mLayer->setMetadataUrl( mLayerMetadataUrlLineEdit->text() );
+//  if ( mLayer->metadataUrl() != mLayerMetadataUrlLineEdit->text() )
+//    mMetadataFilled = false;
+//  mLayer->setMetadataUrl( mLayerMetadataUrlLineEdit->text() );
 
-  if ( mLayer->metadataUrlType() != mLayerMetadataUrlTypeComboBox->currentText() )
-    mMetadataFilled = false;
-  mLayer->setMetadataUrlType( mLayerMetadataUrlTypeComboBox->currentText() );
+//  if ( mLayer->metadataUrlType() != mLayerMetadataUrlTypeComboBox->currentText() )
+//    mMetadataFilled = false;
+//  mLayer->setMetadataUrlType( mLayerMetadataUrlTypeComboBox->currentText() );
 
-  if ( mLayer->metadataUrlFormat() != mLayerMetadataUrlFormatComboBox->currentText() )
-    mMetadataFilled = false;
-  mLayer->setMetadataUrlFormat( mLayerMetadataUrlFormatComboBox->currentText() );
+//  if ( mLayer->metadataUrlFormat() != mLayerMetadataUrlFormatComboBox->currentText() )
+//    mMetadataFilled = false;
+//  mLayer->setMetadataUrlFormat( mLayerMetadataUrlFormatComboBox->currentText() );
 
   // LegendURL
   if ( mLayer->legendUrl() != mLayerLegendUrlLineEdit->text() )
@@ -931,6 +956,22 @@ void QgsVectorLayerProperties::pbnIndex_clicked()
       QMessageBox::warning( this, tr( "Spatial Index" ), tr( "Creation of spatial index failed" ) );
     }
   }
+}
+
+void QgsVectorLayerProperties::addMetadataUrl()
+{
+  int row = mMetadataUrlModel->rowCount();
+  mMetadataUrlModel->setItem( row, 0, new QStandardItem( QStringLiteral() ) );
+  mMetadataUrlModel->setItem( row, 1, new QStandardItem( QStringLiteral() ) );
+  mMetadataUrlModel->setItem( row, 2, new QStandardItem( QStringLiteral() ) );
+}
+
+void QgsVectorLayerProperties::removeSelectedMetadataUrl()
+{
+  const QModelIndexList selectedRows = tableViewMetadataUrl->selectionModel()->selectedRows();
+  if ( selectedRows.empty() )
+    return;
+  mMetadataUrlModel->removeRow( selectedRows[0].row() );
 }
 
 QString QgsVectorLayerProperties::htmlMetadata()
@@ -2125,3 +2166,40 @@ void QgsVectorLayerProperties::deleteAuxiliaryField( int index )
     mMessageBar->pushMessage( title, msg, Qgis::MessageLevel::Warning );
   }
 }
+
+///@cond PRIVATE
+
+MetadataUrlItemDelegate::MetadataUrlItemDelegate( QObject *parent )
+  : QStyledItemDelegate( parent )
+{
+
+}
+
+QWidget *MetadataUrlItemDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const
+{
+  if ( index.column() == 1 )
+  {
+    // Type
+    QComboBox *typeEditor = new QComboBox( parent );
+    QStringList types;
+    types << QStringLiteral( ) << QStringLiteral( "FGDC" ) << QStringLiteral( "TC211" );
+    QStringListModel *model = new QStringListModel( parent );
+    model->setStringList( types );
+    typeEditor->setModel( model );
+    return typeEditor;
+  }
+  else if ( index.column() == 2 )
+  {
+    // Format
+    QComboBox *typeFormat = new QComboBox( parent );
+    QStringList formats;
+    formats << QStringLiteral( ) << QStringLiteral( "text/plain" ) << QStringLiteral( "text/xml" );
+    QStringListModel *model = new QStringListModel( parent );
+    model->setStringList( formats );
+    typeFormat->setModel( model );
+    return typeFormat;
+  }
+
+  return QStyledItemDelegate::createEditor( parent, option, index );
+}
+///@endcond
