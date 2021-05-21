@@ -123,9 +123,7 @@ void QgsMapLayer::clone( QgsMapLayer *layer ) const
   layer->setDataUrlFormat( dataUrlFormat() );
   layer->setAttribution( attribution() );
   layer->setAttributionUrl( attributionUrl() );
-  layer->setMetadataUrl( metadataUrl() );
-  layer->setMetadataUrlType( metadataUrlType() );
-  layer->setMetadataUrlFormat( metadataUrlFormat() );
+  layer->setMetadataUrls( metadataUrls() );
   layer->setLegendUrl( legendUrl() );
   layer->setLegendUrlFormat( legendUrlFormat() );
   layer->setDependencies( dependencies() );
@@ -355,7 +353,7 @@ bool QgsMapLayer::readLayerXml( const QDomElement &layerElement, QgsReadWriteCon
     mKeywordList = kwdList.join( QLatin1String( ", " ) );
   }
 
-  //metadataUrl
+  //dataUrl
   QDomElement dataUrlElem = layerElement.firstChildElement( QStringLiteral( "dataUrl" ) );
   if ( !dataUrlElem.isNull() )
   {
@@ -379,15 +377,18 @@ bool QgsMapLayer::readLayerXml( const QDomElement &layerElement, QgsReadWriteCon
     mAttributionUrl = attribElem.attribute( QStringLiteral( "href" ), QString() );
   }
 
-  //metadataUrl
-  // TODO read legacy and new
+  //metadataUrl, keep for legacy XML < QGIS 3.22
   QDomElement metaUrlElem = layerElement.firstChildElement( QStringLiteral( "metadataUrl" ) );
   if ( !metaUrlElem.isNull() )
   {
-    mMetadataUrl = metaUrlElem.text();
-    mMetadataUrlType = metaUrlElem.attribute( QStringLiteral( "type" ), QString() );
-    mMetadataUrlFormat = metaUrlElem.attribute( QStringLiteral( "format" ), QString() );
+    const QgsMapLayer::MetadataUrl item(
+      metaUrlElem.text(),
+      metaUrlElem.attribute( QStringLiteral( "type" ), QString() ),
+      metaUrlElem.attribute( QStringLiteral( "format" ), QString() )
+    );
+    mMetadataUrls << item;
   }
+  // TODO read new format MetadataURL
 
   // mMetadata.readFromLayer( this );
   QDomElement metadataElem = layerElement.firstChildElement( QStringLiteral( "resourceMetadata" ) );
@@ -2275,4 +2276,88 @@ QString QgsMapLayer::crsHtmlMetadata() const
 
   metadata += QLatin1String( "</table>\n<br><br>\n" );
   return metadata;
+}
+
+void QgsMapLayer::setMetadataUrl( const QString &metaUrl )
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem;
+    metadataUrlItem.url = metaUrl;
+    mMetadataUrls << metadataUrlItem;
+  }
+  else
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem = mMetadataUrls.takeFirst();
+    metadataUrlItem.url = metaUrl;
+    mMetadataUrls.insert( 0, metadataUrlItem );
+  }
+}
+
+QString QgsMapLayer::metadataUrl() const
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    return QString();
+  }
+  else
+  {
+    return mMetadataUrls.first().url;
+  }
+}
+
+void QgsMapLayer::setMetadataUrlType( const QString &metaUrlType )
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem;
+    metadataUrlItem.type = metaUrlType;
+    mMetadataUrls << metadataUrlItem;
+  }
+  else
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem = mMetadataUrls.takeFirst();
+    metadataUrlItem.type = metaUrlType;
+    mMetadataUrls.insert( 0, metadataUrlItem );
+  }
+}
+
+QString QgsMapLayer::metadataUrlType() const
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    return QString();
+  }
+  else
+  {
+    return mMetadataUrls.first().type;
+  }
+}
+
+void QgsMapLayer::setMetadataUrlFormat( const QString &metaUrlFormat )
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem;
+    metadataUrlItem.format = metaUrlFormat;
+    mMetadataUrls << metadataUrlItem;
+  }
+  else
+  {
+    QgsMapLayer::MetadataUrl metadataUrlItem = mMetadataUrls.takeFirst();
+    metadataUrlItem.format = metaUrlFormat;
+    mMetadataUrls.insert( 0, metadataUrlItem );
+  }
+}
+
+QString QgsMapLayer::metadataUrlFormat() const
+{
+  if ( mMetadataUrls.isEmpty() )
+  {
+    return QString();
+  }
+  else
+  {
+    return mMetadataUrls.first().format;
+  }
 }

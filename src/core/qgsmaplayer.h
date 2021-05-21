@@ -131,6 +131,42 @@ class CORE_EXPORT QgsMapLayer : public QObject
     };
 
     /**
+     * \brief MetadataUrl structure.
+     * MetadataUrl is a a link to the detailed, standardized metadata about the data.
+     * \ingroup core
+     * \since QGIS 3.22
+     */
+    struct CORE_EXPORT MetadataUrl
+    {
+
+      /**
+       * Constructor for MetadataUrl.
+       */
+      MetadataUrl( const QString &url = QString(), const QString &type = QString(), const QString &format = QString() )
+        : url( url )
+        , type( type )
+        , format( format )
+      {}
+
+      /**
+       * URL of the link
+       */
+      QString url;
+
+      /**
+       * Link type. Suggested to use FGDC or TC211.
+       */
+      QString type;
+
+      /**
+       * Format specification of online resource. It is strongly suggested to either use text/plain or text/xml.
+       */
+      QString format;
+
+      bool operator==( const QgsMapLayer::MetadataUrl &other ) const;
+    };
+
+    /**
      * Flags for the map layer
      * \note Flags are options specified by the user used for the UI but are not preventing any API call.
      * \since QGIS 3.4
@@ -398,15 +434,31 @@ class CORE_EXPORT QgsMapLayer : public QObject
     /* Layer metadataUrl information */
 
     /**
+     * Returns a list of metadataUrl resources associated for the layer.
+     * Used by QGIS-Server in GetCapabilities request.
+     * \see setMetadataUrls()
+     * \since 3.22
+     */
+    QList <QgsMapLayer::MetadataUrl> metadataUrls() const { return mMetadataUrls; };
+
+    /**
+     * Sets the metadata URL of the layer
+     * Used by QGIS Server in GetCapabilities request.
+     * \returns the list of metadata URLs
+     * \see metadataUrls()
+     * \since 3.22
+     */
+    void setMetadataUrls( const QList<QgsMapLayer::MetadataUrl> &metaUrls ) { mMetadataUrls = metaUrls; };
+
+    /**
      * Sets the metadata URL of the layer
      *  used by QGIS Server in GetCapabilities request.
      *  MetadataUrl is a a link to the detailed, standardized metadata about the data.
      *  Since QGIS 3.22, it will edit the first metadata URL link. You should use the other method.
-     * \returns the layer metadata URL
-     * \see metadataUrl()
+     * \see setMetadataUrls()
      * \deprecated since QGIS 3.22
      */
-    void setMetadataUrl( const QString &metaUrl ) { mMetadataUrl = metaUrl; }
+    void setMetadataUrl( const QString &metaUrl );
 
     /**
      * Returns the metadata URL of the layer
@@ -414,10 +466,10 @@ class CORE_EXPORT QgsMapLayer : public QObject
      *  MetadataUrl is a a link to the detailed, standardized metadata about the data.
      *  Since QGIS 3.22, it will return the first metadata URL link. You should use the other method.
      * \returns the layer metadata URL
-     * \see setMetadataUrl()
+     * \see setMetadataUrls()
      * \deprecated since QGIS 3.22
      */
-    QString metadataUrl() const { return mMetadataUrl; }
+    QString metadataUrl() const;
 
     /**
      * Set the metadata type of the layer
@@ -427,7 +479,7 @@ class CORE_EXPORT QgsMapLayer : public QObject
      * \see metadataUrlType()
      * \deprecated since QGIS 3.22
      */
-    void setMetadataUrlType( const QString &metaUrlType ) { mMetadataUrlType = metaUrlType; }
+    void setMetadataUrlType( const QString &metaUrlType );
 
     /**
      * Returns the metadata type of the layer
@@ -437,7 +489,7 @@ class CORE_EXPORT QgsMapLayer : public QObject
      * \see setMetadataUrlType()
      * \deprecated since QGIS 3.22
      */
-    QString metadataUrlType() const { return mMetadataUrlType; }
+    QString metadataUrlType() const;
 
     /**
      * Sets the metadata format of the layer
@@ -447,7 +499,7 @@ class CORE_EXPORT QgsMapLayer : public QObject
      * \see metadataUrlFormat()
      * \deprecated since QGIS 3.22
      */
-    void setMetadataUrlFormat( const QString &metaUrlFormat ) { mMetadataUrlFormat = metaUrlFormat; }
+    void setMetadataUrlFormat( const QString &metaUrlFormat );
 
     /**
      * Returns the metadata format of the layer
@@ -457,7 +509,7 @@ class CORE_EXPORT QgsMapLayer : public QObject
      * \see setMetadataUrlFormat()
      * \deprecated since QGIS 3.22
      */
-    QString metadataUrlFormat() const { return mMetadataUrlFormat; }
+    QString metadataUrlFormat() const;
 
     /**
      * Set the blending mode used for rendering a layer.
@@ -1910,9 +1962,13 @@ class CORE_EXPORT QgsMapLayer : public QObject
     QString mAttributionUrl;
 
     //! MetadataUrl of the layer
-    QString mMetadataUrl;
-    QString mMetadataUrlType;
-    QString mMetadataUrlFormat;
+    //QString mMetadataUrl;
+    //QString mMetadataUrlType;
+    //QString mMetadataUrlFormat;
+    // QgsMapLayer::MetadataUrl mMetadataUrls;
+    // typedef QList< QgsMapLayer::MetadataUrl > MetadataUrlList;
+    //QgsAbstractMetadataBase::LinkList mLinks;
+    QList< QgsMapLayer::MetadataUrl > mMetadataUrls;
 
     //! WMS legend
     QString mLegendUrl;
