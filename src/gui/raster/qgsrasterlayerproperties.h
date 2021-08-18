@@ -145,6 +145,10 @@ class GUI_EXPORT QgsRasterLayerProperties : public QgsOptionsDialogBase, private
     //! \brief slot executed when user presses "Remove Selected Row" button on the transparency page
     void pbnRemoveSelectedRow_clicked();
 
+    // Server properties
+    void addMetadataUrl();
+    void removeSelectedMetadataUrl();
+
     /**
      * \brief slot executed when the single band radio button is pressed.
      * \brief slot executed when the reset null value to file default icon is selected
@@ -217,6 +221,8 @@ class GUI_EXPORT QgsRasterLayerProperties : public QgsOptionsDialogBase, private
     QPushButton *mBtnMetadata = nullptr;
     QAction *mActionLoadMetadata = nullptr;
     QAction *mActionSaveMetadataAs = nullptr;
+
+    QStandardItemModel *mMetadataUrlModel = nullptr;
 
     //! A list of additional pages provided by plugins
     QList<QgsMapLayerConfigWidget *> mLayerPropertiesPages;

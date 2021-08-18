@@ -538,6 +538,7 @@ set(QGIS_GUI_SRCS
   qgsmessageviewer.cpp
   qgsmetadatawidget.cpp
   qgsmasksourceselectionwidget.cpp
+  qgsmetadataurlitemdelegate.cpp
   qgsnewauxiliarylayerdialog.cpp
   qgsnewauxiliaryfielddialog.cpp
   qgsnewdatabasetablenamewidget.cpp
@@ -788,6 +789,7 @@ set(QGIS_GUI_HDRS
   qgsmessageviewer.h
   qgsmetadatawidget.h
   qgsmasksourceselectionwidget.h
+  qgsmetadataurlitemdelegate.h
   qgsnewauxiliaryfielddialog.h
   qgsnewauxiliarylayerdialog.h
   qgsnewgeopackagelayerdialog.h
