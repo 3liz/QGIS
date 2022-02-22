@@ -1536,12 +1536,23 @@ namespace QgsWfs
         QString attributeName = field.name();
 
         QDomElement fieldElem = doc.createElement( "qgs:" + attributeName.replace( ' ', '_' ).replace( cleanTagNameRegExp, QString() ) );
-        QDomText fieldText = doc.createTextNode( encodeValueToText( featureAttributes[idx], setup ) );
         if ( featureAttributes[idx].isNull() )
         {
           fieldElem.setAttribute( QStringLiteral( "xsi:nil" ), QStringLiteral( "true" ) );
         }
-        fieldElem.appendChild( fieldText );
+        else
+        {
+          QString fieldText = encodeValueToText( featureAttributes[idx], setup );
+          //do we need CDATA
+          if ( fieldText.indexOf( '<' ) != -1 || fieldText.indexOf( '&' ) != -1 )
+          {
+            fieldElem.appendChild( doc.createCDATASection( fieldText ) );
+          }
+          else
+          {
+            fieldElem.appendChild( doc.createTextNode( fieldText ) );
+          }
+        }
         typeNameElement.appendChild( fieldElem );
       }
 
@@ -1592,27 +1603,11 @@ namespace QgsWfs
         case QVariant::StringList:
         case QVariant::List:
         case QVariant::Map:
-        {
-          QString v = QgsJsonUtils::encodeValue( value );
-
-          //do we need CDATA
-          if ( v.indexOf( '<' ) != -1 || v.indexOf( '&' ) != -1 )
-            v.prepend( QStringLiteral( "<![CDATA[" ) ).append( QStringLiteral( "]]>" ) );
-
-          return v;
-        }
+          return QgsJsonUtils::encodeValue( value );
 
         default:
         case QVariant::String:
-        {
-          QString v = value.toString();
-
-          //do we need CDATA
-          if ( v.indexOf( '<' ) != -1 || v.indexOf( '&' ) != -1 )
-            v.prepend( QStringLiteral( "<![CDATA[" ) ).append( QStringLiteral( "]]>" ) );
-
-          return v;
-        }
+          return value.toString();
       }
     }
 
