@@ -28,7 +28,9 @@
 
 namespace QgsWfs
 {
-  void setSchemaLayer( QDomElement &parentElement, QDomDocument &doc, const QgsVectorLayer *layer );
+  QString getGeometryType( const QgsVectorLayer *layer, QgsWfsParameters::Format format );
+
+  void setSchemaLayer( QDomElement &parentElement, QDomDocument &doc, const QgsVectorLayer *layer, QgsWfsParameters::Format format );
 
   /**
    * Create get capabilities document
@@ -45,4 +47,3 @@ namespace QgsWfs
 } // namespace QgsWfs
 
 #endif
-
