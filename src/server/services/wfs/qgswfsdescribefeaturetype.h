@@ -25,6 +25,8 @@
 
 #include <QDomDocument>
 #include <QDomElement>
+#include "qgsserverinterface.h"
+#include "qgswfsparameters.h"
 
 namespace QgsWfs
 {

@@ -215,7 +215,7 @@ namespace QgsWfs
     {
       QDomElement geomElem = doc.createElement( QStringLiteral( "element" )/*xsd:element*/ );
       geomElem.setAttribute( QStringLiteral( "name" ), QStringLiteral( "geometry" ) );
-      geomElem.setAttribute( QStringLiteral( "type" ), getGeometryType( layer, oFormat ) );
+      geomElem.setAttribute( QStringLiteral( "type" ), getGeometryType( layer, format ) );
       geomElem.setAttribute( QStringLiteral( "minOccurs" ), QStringLiteral( "0" ) );
       geomElem.setAttribute( QStringLiteral( "maxOccurs" ), QStringLiteral( "1" ) );
       sequenceElem.appendChild( geomElem );
